@@ -12,13 +12,13 @@ jobs:
         steps:
             - name: Remove conflicting containers and images
               run: |
-                  ids=$(docker ps -aqf "ancestor=bot:${{ github.sha }}")
+                  ids=$(docker ps -aqf "ancestor=BOTNAME:${{ github.sha }}")
                   for id in $ids
                   do
                    echo "$id"
                    docker stop $id && docker rm $id
                   done
-                  ids=$(docker images -q --filter reference=bot:${{ github.sha }})
+                  ids=$(docker images -q --filter reference=BOTNAME:${{ github.sha }})
                   for id in $ids
                   do
                    echo "$id"
@@ -30,11 +30,11 @@ jobs:
               uses: docker/build-push-action@v2
               with:
                   load: true
-                  tags: bot:${{ github.sha }}
+                  tags: BOTNAME:${{ github.sha }}
                   push: false
             - name: Clean up old containers
               run: |
-                  ids=$(docker ps -a | awk -v i="^$1.*" '{if($2~"bot"){print$1}}')
+                  ids=$(docker ps -a | awk -v i="^$1.*" '{if($2~"BOTNAME"){print$1}}')
                   for id in $ids
                   do
                    echo "$id"
@@ -42,7 +42,7 @@ jobs:
                   done
             - name: Clean up old images
               run: |
-                  ids=$(docker images -q --filter reference=bot --filter before=bot:${{ github.sha }})
+                  ids=$(docker images -q --filter reference=BOTNAME --filter before=BOTNAME:${{ github.sha }})
                   for id in $ids
                   do
                    echo "$id"
@@ -51,6 +51,6 @@ jobs:
             - name: Run
               uses: addnab/docker-run-action@v3
               with:
-                  image: bot:${{ github.sha }}
+                  image: BOTNAME:${{ github.sha }}
                   options: -d --restart unless-stopped -e BOT_TOKEN=${{secrets.BOT_TOKEN}} -v ${{secrets.DB_DIR}}:/app/db
                   run: node dist/App.js
